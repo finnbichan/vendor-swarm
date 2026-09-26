@@ -33,7 +33,7 @@ type CreateParams = Omit<OpenAI.Chat.ChatCompletionCreateParamsNonStreaming, "mo
 
 // Params a model has rejected before (e.g. gpt-5 models only accept the default temperature).
 const unsupported = new Map<string, Set<string>>();
-const OPTIONAL_PARAMS = ["temperature", "max_tokens"] as const;
+const OPTIONAL_PARAMS = ["temperature", "max_tokens", "tool_choice"] as const;
 
 async function chat(t: LlmTarget, who: string, params: CreateParams, signal?: AbortSignal) {
   const started = Date.now();
@@ -79,6 +79,10 @@ export async function runAgent(opts: {
   maxSteps?: number;
   stopAfterTools?: string[]; // end the loop right after one of these tools succeeds
   signal?: AbortSignal;
+  /** Force a tool call every step (tool_choice "required"); providers that reject it get "auto". */
+  requireTool?: boolean;
+  /** If the model answers in plain text, send this once and let it try again. */
+  nudge?: string;
 }): Promise<{ text: string; messages: ChatCompletionMessageParam[]; stoppedBy?: string }> {
   const { agent, system, tools, emit } = opts;
   const messages = [...opts.messages];
@@ -87,18 +91,31 @@ export async function runAgent(opts: {
     function: { name: t.name, description: t.description, parameters: t.parameters },
   }));
 
+  let nudged = false;
   for (let step = 0; step < (opts.maxSteps ?? 6); step++) {
     opts.signal?.throwIfAborted();
     const res = await chat(
       opts.target,
       agent,
-      { messages: [{ role: "system", content: system }, ...messages], tools: toolSpec, tool_choice: "auto", temperature: opts.target.temperature },
+      {
+        messages: [{ role: "system", content: system }, ...messages],
+        tools: toolSpec,
+        tool_choice: opts.requireTool ? "required" : "auto",
+        temperature: opts.target.temperature,
+      },
       opts.signal,
     );
     const msg = res.choices[0].message;
     messages.push(msg as ChatCompletionMessageParam);
 
-    if (!msg.tool_calls?.length) return { text: (msg.content ?? "").trim(), messages };
+    if (!msg.tool_calls?.length) {
+      if (opts.nudge && !nudged) {
+        nudged = true;
+        messages.push({ role: "user", content: opts.nudge });
+        continue;
+      }
+      return { text: (msg.content ?? "").trim(), messages };
+    }
 
     let stoppedBy: string | undefined;
     for (const call of msg.tool_calls) {

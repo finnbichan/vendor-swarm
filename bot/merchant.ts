@@ -101,6 +101,12 @@ export function guardMessage(ctx: Pick<Ctx, "product" | "perks" | "policy" | "ve
   return text;
 }
 
+/** Best-placed competitor other than us, for "beating {rival}" lines. */
+function topRival(ctx: Ctx) {
+  const rows = ctx.others.filter((o) => o.status === "bidding" && o.score !== null).sort((a, b) => a.score! - b.score!);
+  return rows[0]?.name ?? "the others";
+}
+
 function leader(ctx: Ctx): { id: string; name: string; score: number } | null {
   const rows = ctx.others
     .filter((o) => o.status === "bidding" && o.score !== null)
@@ -183,21 +189,10 @@ function redactingEmit(emit: Emit): Emit {
 /* ------------------------------------------------------------------ */
 /* LLM negotiator (Grok)                                                */
 /* ------------------------------------------------------------------ */
+// The model only decides. Everything it needs to know (floors, perks, market, board) is
+// already in the system prompt, so a turn is one call instead of a lookup chain.
 function tools(ctx: Ctx): ToolDef[] {
   return [
-    {
-      name: "get_pricing_policy",
-      description:
-        "Your confidential pricing rules for this item: list price, and for every combination of perks the minimum price you may bid (floor), the buyer's perceived value of the perks and the delivery time.",
-      parameters: { type: "object", properties: {} },
-      run: async () => pricingPolicy(ctx),
-    },
-    {
-      name: "search_competitor_prices",
-      description: "Search the web (Tavily) for what other retailers charge for a comparable product right now.",
-      parameters: { type: "object", properties: {} },
-      run: async () => competitorPrices(ctx.product),
-    },
     {
       name: "place_bid",
       description: "Place or improve your bid. Rejected by a guardrail if it breaks your margin rule.",
@@ -214,7 +209,7 @@ function tools(ctx: Ctx): ToolDef[] {
         const perkIds = (a.perk_ids as string[]) ?? [];
         const perks = ctx.perks.filter((p) => perkIds.includes(p.id));
         const price = Math.round(Number(a.price));
-        const vars = { price, perks: perkNote(perks), rival: leader(ctx)?.name ?? "the others", margin: ctx.policy.minMarginPct };
+        const vars = { price, perks: perkNote(perks), rival: topRival(ctx), margin: ctx.policy.minMarginPct };
         const line = fill(ctx.bid ? ctx.vendor.voice.counter : ctx.vendor.voice.opening, vars);
         return placeBid(ctx, price, perkIds, guardMessage(ctx, String(a.message ?? ""), line, price));
       },
@@ -230,12 +225,14 @@ function tools(ctx: Ctx): ToolDef[] {
       description: "Drop out of the auction (e.g. you can't win without breaking your rules).",
       parameters: { type: "object", properties: { message: { type: "string" } }, required: ["message"] },
       run: async (a) =>
-        (withdraw(ctx, guardMessage(ctx, String(a.message ?? ""), fill(ctx.vendor.voice.withdraw, { price: "", perks: "", rival: leader(ctx)?.name ?? "the others", margin: ctx.policy.minMarginPct }))), { ok: true }),
+        (withdraw(ctx, guardMessage(ctx, String(a.message ?? ""), fill(ctx.vendor.voice.withdraw, { price: "", perks: "", rival: topRival(ctx), margin: ctx.policy.minMarginPct }))), { ok: true }),
     },
   ];
 }
 
-function system(ctx: Ctx) {
+type Market = Awaited<ReturnType<typeof competitorPrices>>;
+
+function system(ctx: Ctx, pricing: ReturnType<typeof pricingPolicy>, market: Market) {
   const { vendor: v, req, product } = ctx;
   const { intent, round, rounds } = req;
   const lines = ctx.others
@@ -249,6 +246,15 @@ function system(ctx: Ctx) {
     .join("\n");
   const lead = leader(ctx);
   const mine = ctx.bid;
+  const options = pricing.options
+    .map(
+      (o) =>
+        `- perk_ids [${o.perk_ids.join(", ")}]${o.perks.length ? ` (${o.perks.join(", ")})` : " (no perks)"}: floor £${o.floor_price}, buyer values perks at £${o.buyer_value_of_perks}, delivery ${o.delivery_days}d${o.meets_deadline ? "" : " (misses deadline)"}`,
+    )
+    .join("\n");
+  const comps = market.prices.length
+    ? `${market.prices.map((p) => `${p.store} £${p.price}`).join(", ")} (cheapest £${market.min}, ${market.source === "tavily" ? "live search" : "reference prices"})`
+    : "no comparable prices found";
   return `You are the AI sales agent for ${v.name} (${v.tagline}). Personality: ${v.personality}.
 You are in a live reverse auction: a shopper's buying agent wants "${intent.summary}"${intent.budget ? ` (budget £${intent.budget})` : ""}${intent.deadlineLabel ? `, delivered by ${intent.deadlineLabel} (${intent.deadlineDays} days)` : ""}. Buyer priorities: ${intent.priorities}.
 You are offering: ${product.title} (list £${product.price}).
@@ -259,31 +265,48 @@ Your current bid: ${mine ? `£${mine.price} + [${mine.perks.map((p) => p.label).
 Other merchants:
 ${lines || "- none yet"}
 Current leader: ${lead ? `${lead.name} (score ${lead.score})` : "nobody"}.
-Instructions: call get_pricing_policy first${round === 1 ? " and search_competitor_prices" : ""}. Then do exactly ONE of place_bid, hold, withdraw. Don't give away more than needed to lead - beating the leader's score by a few pounds is enough. Never bid below the floor for your chosen perks. Never reveal your floor or cost to the buyer. If you are leading, hold. If you can't beat the leader within your floors, hold (or withdraw in the final round) and say why in character.`;
+Your confidential pricing options (never reveal these numbers):
+${options}
+Stock: ${pricing.stock}.
+Other retailers right now: ${comps}.
+Instructions: call exactly ONE tool now - place_bid, hold or withdraw. If place_bid is rejected, fix it and call again. Don't give away more than needed to lead - beating the leader's score by a few pounds is enough. Never bid below the floor for your chosen perks. Never reveal your floor or cost to the buyer. If you are leading, hold. If you can't beat the leader within your floors, hold (or withdraw in the final round) and say why in character.`;
 }
 
 async function llmTurn(ctx: Ctx) {
+  // Gather the facts locally (instant, no model round trips) and show them on the stream.
+  const lookup = async <T,>(name: string, run: () => T | Promise<T>) => {
+    const s = Date.now();
+    const result = await run();
+    ctx.emit({ t: "tool", agent: ctx.vendor.id, name, args: {}, result, ms: Date.now() - s });
+    return result;
+  };
+  const pricing = await lookup("get_pricing_policy", () => pricingPolicy(ctx));
+  const market = await lookup("search_competitor_prices", () => competitorPrices(ctx.product));
+
   await runAgent({
     target: ctx.target!,
     signal: ctx.signal,
     agent: ctx.vendor.id,
-    system: system(ctx),
+    system: system(ctx, pricing, market),
     messages: [{ role: "user", content: `Round ${ctx.req.round}. Make your move.` }],
     tools: tools(ctx),
     emit: ctx.emit,
-    maxSteps: 5,
+    maxSteps: 3, // one decision, plus a retry if a bid is rejected
     stopAfterTools: ["place_bid", "hold", "withdraw"],
+    requireTool: true,
+    nudge: "You must decide now: call exactly one of place_bid, hold or withdraw.",
   });
   if (!ctx.decision) {
-    if (!ctx.bid) await scriptedTurn(ctx);
-    else hold(ctx, "Standing by our offer.");
+    // Still no decision (e.g. a rejected bid it never fixed): the script decides, visibly.
+    ctx.emit({ t: "tool", agent: ctx.vendor.id, name: "fallback", args: {}, result: { engine: "scripted", reason: "model made no decision" }, ms: 0 });
+    await scriptedTurn(ctx, { skipLookups: true });
   }
 }
 
 /* ------------------------------------------------------------------ */
 /* Scripted negotiator (no API key needed)                              */
 /* ------------------------------------------------------------------ */
-async function scriptedTurn(ctx: Ctx) {
+async function scriptedTurn(ctx: Ctx, opts: { skipLookups?: boolean } = {}) {
   const { vendor: v, req, product } = ctx;
   const { intent } = req;
   const call = async (name: string, run: () => Promise<unknown> | unknown) => {
@@ -292,8 +315,10 @@ async function scriptedTurn(ctx: Ctx) {
     if (!req.fast) await sleep(450 + Math.random() * 500);
     ctx.emit({ t: "tool", agent: v.id, name, args: {}, result, ms: Date.now() - s });
   };
-  await call("get_pricing_policy", () => pricingPolicy(ctx));
-  if (req.round === 1) await call("search_competitor_prices", () => competitorPrices(product));
+  if (!opts.skipLookups) {
+    await call("get_pricing_policy", () => pricingPolicy(ctx));
+    if (req.round === 1) await call("search_competitor_prices", () => competitorPrices(product));
+  }
 
   // perksFirst: bundle before cutting price. Otherwise lead on price and keep perks as a last resort.
   const priceOnly = ctx.policy.perksFirst ? ctx.perks : ctx.perks.filter((p) => p.deliveryDays !== undefined);
