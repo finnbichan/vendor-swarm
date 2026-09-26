@@ -3,7 +3,7 @@
 import { timingSafeEqual } from "node:crypto";
 import { Hono, type MiddlewareHandler } from "hono";
 import { cors } from "hono/cors";
-import { AwardRequestSchema, PROTOCOL_VERSION, QuoteRequestSchema, type Card } from "../protocol";
+import { AwardRequestSchema, MatchRequestSchema, PROTOCOL_VERSION, QuoteRequestSchema, type Card } from "../protocol";
 import { config, llmTarget } from "../lib/config";
 import { ndjsonStream } from "../lib/events";
 import { parseStrategy } from "../lib/policy";
@@ -12,7 +12,7 @@ import { isOwner, requireOwner, type Owner } from "./auth";
 import { award, AwardError, storeFor } from "./award";
 import { mockCheckoutPage } from "./checkout-page";
 import { ConfigError, ConflictError, type VendorStore } from "./config-store";
-import { publicProduct, quote } from "./merchant";
+import { matchIntent, publicProduct, quote } from "./merchant";
 import { policyOf } from "./schema";
 
 /* ---------------- shared middleware ---------------- */
@@ -58,6 +58,9 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
   const app = new Hono<{ Variables: { owner: Owner } }>();
 
   app.use("/card", corsMw());
+  // /match answers a yes/no budget question, so it's keyed and limited like /quote
+  // (unlimited calls could narrow down a floor by varying the budget).
+  app.use("/match", corsMw(), requireSwarmKey, rateLimit(120));
   app.use("/quote", corsMw(), requireSwarmKey, rateLimit(60));
   app.use("/award", corsMw(), requireSwarmKey, rateLimit(20));
 
@@ -81,9 +84,17 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
       products: products.map(publicProduct),
       engine: engineOf(store),
       store: storeFor(v) ? "shopify" : "mock",
-      endpoints: { quote: `${publicUrl}/quote`, award: `${publicUrl}/award`, policy: `${publicUrl}/policy`, admin: `${publicUrl}/admin/` },
+      endpoints: { match: `${publicUrl}/match`, quote: `${publicUrl}/quote`, award: `${publicUrl}/award`, policy: `${publicUrl}/policy`, admin: `${publicUrl}/admin/` },
     };
     return c.json(card);
+  });
+
+  app.post("/match", async (c) => {
+    const parsed = MatchRequestSchema.safeParse(await c.req.json().catch(() => null));
+    if (!parsed.success) return c.json({ error: "Invalid match request", issues: parsed.error.issues }, 400);
+    const r = matchIntent(store.current(), parsed.data.intent);
+    log(`match ${parsed.data.intent.category}${parsed.data.intent.budget ? ` £${parsed.data.intent.budget}` : ""}: ${r.include ? "yes" : `no (${r.reason})`}`);
+    return c.json(r);
   });
 
   app.post("/quote", async (c) => {

@@ -1,7 +1,7 @@
 // One merchant turn: given a request for quote, decide bid / hold / withdraw.
 // Ported from ~/haggle lib/auction.ts, made stateless: everything the bot needs about the
 // auction arrives in the request, and everything private (cost, floors) stays in here.
-import { score, type BoardEntry, type Decision, type PublicProduct, type QuoteRequest } from "../protocol";
+import { score, type BoardEntry, type Decision, type Intent, type MatchResponse, type MyBid, type PublicProduct, type QuoteRequest } from "../protocol";
 import type { Emit } from "../lib/events";
 import { config, llmTarget, type LlmTarget } from "../lib/config";
 import { runAgent, type ToolDef } from "../lib/llm";
@@ -64,11 +64,11 @@ export function perksFor(snap: Snapshot, category: string) {
 }
 
 /** Stateless product choice: keep what we already bid with, otherwise the best kit that fits the budget. */
-function pickProduct(snap: Snapshot, req: QuoteRequest, policy: Policy): Product | null {
-  if (req.myBid) return snap.catalog.products.find((p) => p.handle === req.myBid!.handle) ?? null;
-  const pool = snap.catalog.products.filter((p) => p.category === req.intent.category && !p.hidden && p.stock > 0);
+function pickProduct(snap: Snapshot, intent: Intent, policy: Policy, myBid?: MyBid | null): Product | null {
+  if (myBid) return snap.catalog.products.find((p) => p.handle === myBid.handle) ?? null;
+  const pool = snap.catalog.products.filter((p) => p.category === intent.category && !p.hidden && p.stock > 0);
   if (!pool.length) return null;
-  const budget = req.intent.budget;
+  const budget = intent.budget;
   if (budget) {
     const fits = pool.filter((p) => floorPrice(p, policy) <= budget).sort((a, b) => b.price - a.price);
     if (fits.length) return fits[0];
@@ -84,7 +84,7 @@ const perkNote = (ps: Perk[]) => (ps.length ? ` with ${ps.map((p) => p.label.toL
  * floors. Any £ figure matching a private number (other than the price we're bidding) or
  * floor/cost talk gets swapped for the vendor's own scripted line.
  */
-export function guardMessage(ctx: Pick<Ctx, "product" | "perks" | "policy" | "vendor">, message: string, fallback: string, bidPrice?: number) {
+export function guardMessage(ctx: Pick<Ctx, "product" | "perks" | "policy" | "vendor">, message: string, fallback: string, publicPrice?: number) {
   const text = message.replace(/\s+/g, " ").trim().slice(0, 240);
   const secret = new Set<number>([ctx.product.cost]);
   for (const ps of perkSubsets(ctx.perks)) {
@@ -92,7 +92,8 @@ export function guardMessage(ctx: Pick<Ctx, "product" | "perks" | "policy" | "ve
     secret.add(ctx.product.cost + ps.reduce((s, k) => s + k.costToMerchant, 0));
   }
   const amounts = [...text.matchAll(/£\s?(\d+(?:\.\d+)?)/g)].map((m) => Math.round(Number(m[1])));
-  const leaks = amounts.some((n) => n !== bidPrice && secret.has(n));
+  // Our own bid is public even when it sits exactly on a floor, so quoting it is fine.
+  const leaks = amounts.some((n) => n !== publicPrice && secret.has(n));
   const talk = /\bfloor\b|cost price|our cost|costs? us|we paid|margin is|minimum (?:price|is)/i.test(text);
   if (!text || leaks || talk) {
     console.warn(`[${ctx.vendor.id}] leak guard replaced a model message${leaks ? " (private figure)" : talk ? " (cost/floor talk)" : ""}`);
@@ -218,14 +219,14 @@ function tools(ctx: Ctx): ToolDef[] {
       name: "hold",
       description: "Keep your current bid unchanged this round.",
       parameters: { type: "object", properties: { message: { type: "string" } }, required: ["message"] },
-      run: async (a) => (hold(ctx, guardMessage(ctx, String(a.message ?? ""), fill(ctx.vendor.voice.hold, { price: ctx.bid?.price ?? "", perks: "", rival: "", margin: ctx.policy.minMarginPct }))), { ok: true }),
+      run: async (a) => (hold(ctx, guardMessage(ctx, String(a.message ?? ""), fill(ctx.vendor.voice.hold, { price: ctx.bid?.price ?? "", perks: "", rival: "", margin: ctx.policy.minMarginPct }), ctx.bid?.price)), { ok: true }),
     },
     {
       name: "withdraw",
       description: "Drop out of the auction (e.g. you can't win without breaking your rules).",
       parameters: { type: "object", properties: { message: { type: "string" } }, required: ["message"] },
       run: async (a) =>
-        (withdraw(ctx, guardMessage(ctx, String(a.message ?? ""), fill(ctx.vendor.voice.withdraw, { price: "", perks: "", rival: topRival(ctx), margin: ctx.policy.minMarginPct }))), { ok: true }),
+        (withdraw(ctx, guardMessage(ctx, String(a.message ?? ""), fill(ctx.vendor.voice.withdraw, { price: "", perks: "", rival: topRival(ctx), margin: ctx.policy.minMarginPct }), ctx.bid?.price)), { ok: true }),
     },
   ];
 }
@@ -394,7 +395,7 @@ export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit) {
   const decide = (decision: Decision) => emit({ t: "decision", merchantId: v.id, round: req.round, decision });
 
   const policy = policyOf(v);
-  const product = pickProduct(snap, req, policy);
+  const product = pickProduct(snap, req.intent, policy, req.myBid);
   if (!product) return decide({ action: "withdraw", message: `${v.name} doesn't stock ${req.intent.categoryLabel.toLowerCase()} right now.` });
   if (product.stock <= 0) return decide({ action: "withdraw", message: `Sold out of the ${product.title}.` });
   emit({ t: "lot", merchantId: v.id, product: publicProduct(product), deliveryDays: v.deliveryDays });
@@ -434,4 +435,41 @@ export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit) {
     }
   }
   decide(ctx.decision ?? { action: "hold", message: "Standing by our offer." });
+}
+
+/* ------------------------------------------------------------------ */
+/* Entry point for POST /match: would we take part in this auction?    */
+/* ------------------------------------------------------------------ */
+// Instant and model-free, using the same product choice as /quote, so a "yes" means we'll bid.
+// Reasons are categories, never numbers: "over_budget" says no, not by how much.
+export function matchIntent(snap: Snapshot, intent: Intent): MatchResponse {
+  const v = snap.vendor;
+  const policy = policyOf(v);
+  const no = (reason: MatchResponse["reason"], message: string): MatchResponse => ({
+    merchantId: v.id,
+    include: false,
+    reason,
+    message,
+    product: null,
+    deliveryDays: null,
+    meetsDeadline: null,
+  });
+  const stocked = snap.catalog.products.filter((p) => p.category === intent.category && !p.hidden);
+  const label = intent.categoryLabel.toLowerCase();
+  if (!stocked.length) return no("not_stocked", `${v.name} doesn't sell ${label}.`);
+  if (!stocked.some((p) => p.stock > 0)) return no("out_of_stock", `${v.name} is sold out of ${label}.`);
+  const product = pickProduct(snap, intent, policy);
+  if (!product) return no("out_of_stock", `${v.name} is sold out of ${label}.`);
+  if (intent.budget && floorPrice(product, policy) > intent.budget) return no("over_budget", `${v.name} can't meet that budget.`);
+  const deliveryDays = deliveryFor(v, perksFor(snap, intent.category));
+  const meetsDeadline = intent.deadlineDays ? deliveryDays <= intent.deadlineDays : true;
+  return {
+    merchantId: v.id,
+    include: true,
+    reason: "ok",
+    message: `${v.name} will bid with the ${product.title}${meetsDeadline ? "" : " (can't make the deadline)"}.`,
+    product: publicProduct(product),
+    deliveryDays,
+    meetsDeadline,
+  };
 }

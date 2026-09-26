@@ -64,7 +64,15 @@ render.yaml              Render Blueprint; .github/workflows/keep-warm.yml pings
 
 \* SoundHaus keeps its original Everyday Parka from `~/haggle`, because the brief said to keep existing products and handles. MegaMart can't cover all 7 categories within the 3-6 product limit, so it skips speaker, which already has 3 vendors. Every category has at least 3 vendors.
 
-## Protocol (v1.1), see `protocol.ts`
+## Protocol (v1.2), see `protocol.ts`
+
+What's new in 1.2:
+- **`POST /match`** `{intent}` returns `{merchantId, include, reason, message, product, deliveryDays, meetsDeadline}`. It's the catalogue check: before round 1, the auctioneer asks each bot whether it would take part.
+  - `reason` is one of `ok`, `not_stocked`, `out_of_stock` or `over_budget`. It's never a number, so a bot doesn't reveal how far over budget it is.
+  - It's instant and uses no model. It picks a product the same way as `/quote`, so `include: true` means the bot will bid.
+  - A late bot still says yes, with `meetsDeadline: false`, because late bids count with the buyer's late penalty.
+  - It needs the swarm key and is rate-limited. Unlimited budget probes could otherwise narrow down a floor.
+  - On the host, **`POST /match`** asks all vendors in one call and returns `{included: [ids], results: [...]}`.
 
 What's new in 1.1:
 - `engine` is `"scripted"` or `"<provider>:<model>"`.
@@ -73,6 +81,7 @@ What's new in 1.1:
 
 Bots are stateless. Every `/quote` request carries everything the bot needs.
 
+- **`POST /match`**: see above.
 - **`GET /card`**: `{protocolVersion, id, name, tagline, logo, accent, personality, categories, deliveryDays, perks[{id,label,valueToBuyer,deliveryDays?,categories?}], products[{handle,category,title,description,price,emoji,image?,inStock}], engine, store, endpoints}`. It contains no cost, floor or perk cost.
 - **`POST /quote`**: the request is `{auctionId, round, rounds, intent, myBid: {handle,price,perkIds} | null, leaderboard: BoardEntry[], fast?}`. The response is an NDJSON stream of `hello`, `lot`, `thinking`, `tool`, `guardrail`, then `decision`, then `done`. The decision is one of:
   - `{action:"bid", handle, title, price, perkIds, perks, perkValue, deliveryDays, effective, score, message}`

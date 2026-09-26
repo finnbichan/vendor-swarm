@@ -7,6 +7,7 @@
 //   stubborn     never call a tool (the bot must fall back to its script)
 //   no-required  reject tool_choice "required" (the bot must retry with "auto")
 //   slow         wait 5s per call (for timeout / turn-budget tests)
+//   floor        bid exactly at the floor, then hold quoting that (public) bid - must NOT be replaced
 import { createServer } from "node:http";
 
 const mode = process.env.MODE || "normal";
@@ -53,6 +54,12 @@ createServer((req, res) => {
     if (mode === "text" && !/decide now/i.test(last?.content ?? "")) return reply(res, 200, text("Considering our position..."));
     if (mode === "text") return reply(res, 200, toolCall("hold", { message: "We'll stand firm on value this round." }));
 
+    if (mode === "floor") {
+      const mine = /Your current bid: £(\d+)/.exec(sys);
+      if (mine) return reply(res, 200, toolCall("hold", { message: `Holding at £${mine[1]} - that's our best.` }));
+      const f = /perk_ids \[\][^:]*: floor £(\d+)/.exec(sys);
+      return reply(res, 200, toolCall("place_bid", { price: Number(f[1]), perk_ids: [], message: `£${f[1]}, our sharpest price.` }));
+    }
     // normal / no-required: bid £20 over the first option's floor, leaking the floor.
     const m = /perk_ids \[([^\]]*)\][^:]*: floor £(\d+)/.exec(sys);
     if (!m) return reply(res, 200, toolCall("hold", { message: "Holding." }));

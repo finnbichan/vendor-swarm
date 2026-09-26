@@ -4,7 +4,8 @@
 import { z } from "zod";
 
 // 1.1: `engine` is "scripted" or "<provider>:<model>"; /quote and /award may require a swarm key.
-export const PROTOCOL_VERSION = "1.1";
+// 1.2: POST /match - a bot says whether it would take part in an auction for an intent.
+export const PROTOCOL_VERSION = "1.2";
 export const ROUNDS = 3;
 export const LATE_PENALTY = 25; // how much the buyer dislikes missing the deadline, in £
 
@@ -61,9 +62,31 @@ export const CardSchema = z.object({
   products: z.array(PublicProductSchema),
   engine: z.string(), // "scripted" or "<provider>:<model>", e.g. "xai:grok-4.7"
   store: z.enum(["shopify", "mock"]),
-  endpoints: z.object({ quote: z.string(), award: z.string(), policy: z.string(), admin: z.string() }),
+  endpoints: z.object({ match: z.string(), quote: z.string(), award: z.string(), policy: z.string(), admin: z.string() }),
 });
 export type Card = z.infer<typeof CardSchema>;
+
+/* ------------------------------------------------------------------ */
+/* POST /match  (would this bot take part? call before round 1)         */
+/* ------------------------------------------------------------------ */
+export const MatchRequestSchema = z.object({
+  protocolVersion: z.string().optional(),
+  auctionId: z.string().optional(),
+  intent: IntentSchema,
+});
+export type MatchRequest = z.infer<typeof MatchRequestSchema>;
+
+export const MatchResponseSchema = z.object({
+  merchantId: z.string(),
+  include: z.boolean(),
+  // Categories only - a bot never says by how much it misses a budget.
+  reason: z.enum(["ok", "not_stocked", "out_of_stock", "over_budget"]),
+  message: z.string(),
+  product: PublicProductSchema.nullable(), // what it would offer, when include is true
+  deliveryDays: z.number().nullable(), // fastest delivery it can offer for this category
+  meetsDeadline: z.boolean().nullable(), // late bids still count, with the buyer's late penalty
+});
+export type MatchResponse = z.infer<typeof MatchResponseSchema>;
 
 /* ------------------------------------------------------------------ */
 /* POST /quote  (request for quote, one per bot per round)              */

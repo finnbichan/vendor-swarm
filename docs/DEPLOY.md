@@ -6,6 +6,7 @@ In production, all 8 vendor bots run in **one Render web service** (`bot/host.ts
 https://<service>.onrender.com/            index page
 https://<service>.onrender.com/health      status (engine, storage, config version per vendor)
 https://<service>.onrender.com/vendors     discovery list for the auctioneer
+https://<service>.onrender.com/match       catalogue check across all vendors (swarm key)
 https://<service>.onrender.com/v/aurora/card | /quote | /award | /policy | /admin/
 ```
 
@@ -82,7 +83,7 @@ npm run auction -- "noise cancelling headphones under £260 by Friday" --base ht
 ## 5. Point ~/haggle at it (later step)
 
 In the Vercel project:
-- `HAGGLE_VENDOR_BASE=https://<service>.onrender.com`. The auctioneer reads `/vendors`, then each bot's `/card`.
+- `HAGGLE_VENDOR_BASE=https://<service>.onrender.com`. The auctioneer calls `POST /match` with the shopper's intent to learn which vendors will take part, then runs `/quote` rounds against those bots.
 - `SWARM_API_KEY=<same value>`, sent as `Authorization: Bearer …` on `/quote` and `/award`.
 
 ## Checklist

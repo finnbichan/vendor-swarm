@@ -111,11 +111,30 @@ if (!cards.length) {
   console.error(c.red(`No bots answered (${urls.length} tried). ${base ? "Is the host up?" : "Start them with: npm run swarm"}`));
   process.exit(1);
 }
-const lots = cards
-  .filter((k) => k.categories.includes(intent.category))
-  .map((card) => ({ card, status: "bidding", bid: null, lastMessage: "" }));
-console.log(`   ${cards.length}/${urls.length} bots online · ${lots.length} sell ${intent.categoryLabel.toLowerCase()}:`);
-for (const l of lots) console.log(`     ${l.card.logo} ${l.card.name.padEnd(16)} ${c.dim(fast ? "scripted (fast)" : l.card.engine)}`);
+// Catalogue check: every bot says yes or no (with a reason) before round 1.
+async function match(card) {
+  if (!card.endpoints.match) return { include: card.categories.includes(intent.category), reason: "ok", message: "(no /match - pre-1.2 bot)" };
+  try {
+    const r = await fetch(card.endpoints.match, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...auth },
+      body: JSON.stringify({ auctionId, intent }),
+      signal: AbortSignal.timeout(15_000),
+    });
+    return r.ok ? await r.json() : { include: false, reason: `HTTP ${r.status}`, message: (await r.text()).slice(0, 120) };
+  } catch (e) {
+    return { include: false, reason: "unreachable", message: e.message };
+  }
+}
+const answers = await Promise.all(cards.map(async (card) => ({ card, m: await match(card) })));
+const lots = answers.filter((a) => a.m.include).map(({ card, m }) => ({ card, match: m, status: "bidding", bid: null, lastMessage: "" }));
+console.log(`   ${cards.length}/${urls.length} bots online · catalogue check: ${lots.length} in, ${answers.length - lots.length} out`);
+for (const { card, m } of answers)
+  console.log(
+    m.include
+      ? `     ${c.green("✓")} ${card.logo} ${card.name.padEnd(16)} ${m.product?.title ?? ""}${m.meetsDeadline === false ? c.yellow(" (late)") : ""} ${c.dim(fast ? "scripted (fast)" : card.engine)}`
+      : c.dim(`     ✗ ${card.logo} ${card.name.padEnd(16)} ${m.reason}: ${m.message}`),
+  );
 console.log();
 if (lots.length === 0) process.exit(0);
 

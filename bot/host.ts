@@ -5,10 +5,12 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { config, live } from "../lib/config";
 import { PROTOCOL_VERSION } from "../protocol";
-import { corsMw, createVendorApp, engineOf } from "./app";
+import { MatchRequestSchema } from "../protocol";
+import { corsMw, createVendorApp, engineOf, rateLimit, requireSwarmKey } from "./app";
 import { authConfig } from "./auth";
 import { storeFor } from "./award";
 import { listVendorIds, VendorStore } from "./config-store";
+import { matchIntent } from "./merchant";
 import { assertProductionReady } from "./prod-checks";
 
 const all = listVendorIds();
@@ -27,6 +29,7 @@ const started = Date.now();
 const stores = await Promise.all(ids.map((id) => VendorStore.open(id, (msg) => console.log(`[${id}] ${msg}`))));
 const host = new Hono();
 host.use("/vendors", corsMw());
+host.use("/match", corsMw(), requireSwarmKey, rateLimit(60));
 
 const vendorUrl = (id: string) => `${base}/v/${id}`;
 for (const store of stores) host.route(`/v/${store.id}`, createVendorApp(store, { publicUrl: vendorUrl(store.id), log: (m) => console.log(`[${store.id}] ${m}`) }));
@@ -38,6 +41,19 @@ host.get("/vendors", (c) =>
     vendors: stores.map((s) => ({ id: s.id, name: s.current().vendor.name, logo: s.current().vendor.logo, cardUrl: `${vendorUrl(s.id)}/card` })),
   }),
 );
+
+// Ask every vendor at once whether it would take part - one call instead of eight.
+host.post("/match", async (c) => {
+  const parsed = MatchRequestSchema.safeParse(await c.req.json().catch(() => null));
+  if (!parsed.success) return c.json({ error: "Invalid match request", issues: parsed.error.issues }, 400);
+  const results = stores.map((s) => ({
+    ...matchIntent(s.current(), parsed.data.intent),
+    name: s.current().vendor.name,
+    logo: s.current().vendor.logo,
+    cardUrl: `${vendorUrl(s.id)}/card`,
+  }));
+  return c.json({ protocolVersion: PROTOCOL_VERSION, included: results.filter((r) => r.include).map((r) => r.merchantId), results });
+});
 
 host.get("/health", (c) =>
   c.json({
