@@ -1,0 +1,59 @@
+# Render Blueprint: all 8 vendor bots in one free web service (bot/host.ts), each at /v/<id>.
+# Dashboard -> New -> Blueprint -> pick this repo, then fill in the secrets marked sync:false.
+services:
+  - type: web
+    name: haggle-vendors
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      # Security (required in production - the host refuses to boot without them)
+      - key: SWARM_API_KEY
+        generateValue: true # copy it into ~/haggle's env so the auctioneer can call the bots
+      - key: ADMIN_SESSION_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false # e.g. https://haggle.vercel.app
+      # Models (any OpenAI-compatible provider; set the keys you have)
+      - key: LLM_PROVIDER
+        value: xai
+      - key: XAI_API_KEY
+        sync: false
+      - key: XAI_MODEL
+        value: grok-4.7
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: LLM_TIMEOUT_MS
+        value: "15000"
+      - key: TURN_BUDGET_MS
+        value: "25000"
+      - key: LLM_CONCURRENCY
+        value: "4"
+      # Supabase: config storage (service role) + owner login (anon key)
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      # Optional integrations
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: AURORA_SHOPIFY_DOMAIN
+        sync: false
+      - key: AURORA_SHOPIFY_TOKEN
+        sync: false

@@ -1,0 +1,16 @@
+# Render's free tier sleeps after ~15 min idle (30-60 s cold start). This pings /health
+# every 10 minutes so the swarm is awake for demos. One always-on free service fits in
+# Render's 750 free instance-hours a month. Set the repo variable HAGGLE_VENDORS_URL,
+# e.g. https://haggle-vendors.onrender.com - or disable this workflow to let it sleep.
+name: keep-warm
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    if: ${{ vars.HAGGLE_VENDORS_URL != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - run: curl -fsS --max-time 90 "${{ vars.HAGGLE_VENDORS_URL }}/health" > /dev/null

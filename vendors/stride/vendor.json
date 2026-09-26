@@ -1,0 +1,49 @@
+{
+  "id": "stride",
+  "name": "Stride Lab",
+  "tagline": "Running specialist, gait-analysed fits",
+  "logo": "👟",
+  "accent": "#dc2626",
+  "port": 4104,
+  "personality": "energetic running-shop coach who sells the right fit, not just a shoe",
+  "deliveryDays": 2,
+  "strategy": "Keep 28% margin. Lead with a free gait fitting, then the second-pair offer, before cutting price. Clearance stock can go to 18%.",
+  "minMarginPct": 28,
+  "clearanceMarginPct": 18,
+  "perksFirst": true,
+  "codeTtlMinutes": 20,
+  "scripted": {
+    "openingDiscountPct": 3,
+    "undercut": 3
+  },
+  "voice": {
+    "opening": "£{price}{perks} - fitted by people who actually run.",
+    "counter": "£{price}{perks}. {rival} sells boxes; we sell the right fit.",
+    "hold": "Our fit beats their discount. Holding.",
+    "withdraw": "Can't follow {rival} below {margin}% - enjoy the blisters."
+  },
+  "perks": [
+    {
+      "id": "gait",
+      "label": "Free gait fitting",
+      "costToMerchant": 5,
+      "valueToBuyer": 20,
+      "categories": [
+        "trainers"
+      ]
+    },
+    {
+      "id": "second-pair",
+      "label": "Second pair 50% off voucher",
+      "costToMerchant": 12,
+      "valueToBuyer": 25,
+      "categories": [
+        "trainers"
+      ]
+    }
+  ],
+  "shopify": {
+    "domainEnv": "STRIDE_SHOPIFY_DOMAIN",
+    "tokenEnv": "STRIDE_SHOPIFY_TOKEN"
+  }
+}

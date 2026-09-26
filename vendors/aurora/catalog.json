@@ -1,0 +1,91 @@
+{
+  "products": [
+    {
+      "handle": "aurora-anc-headphones",
+      "category": "headphones",
+      "title": "Aurora ANC Headphones",
+      "description": "Over-ear, adaptive noise cancelling, 40-hour battery, memory-foam cushions.",
+      "price": 249,
+      "cost": 150,
+      "stock": 42,
+      "emoji": "🎧",
+      "comparatorQuery": "Sony WH-1000XM5 headphones price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 239,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 229,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 249,
+          "url": "https://www.johnlewis.com"
+        }
+      ]
+    },
+    {
+      "handle": "aurora-pulse-earbuds",
+      "category": "earbuds",
+      "title": "Pulse Wireless Earbuds",
+      "description": "True wireless ANC earbuds with wireless charging case.",
+      "price": 129,
+      "cost": 70,
+      "stock": 64,
+      "emoji": "🎵",
+      "comparatorQuery": "Sony WF-1000XM4 earbuds price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 119,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 115,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "aurora-nimbus-speaker",
+      "category": "speaker",
+      "title": "Nimbus Smart Speaker",
+      "description": "Room-filling smart speaker with voice assistant and multi-room audio.",
+      "price": 179,
+      "cost": 105,
+      "stock": 18,
+      "emoji": "🔊",
+      "comparatorQuery": "Sonos Era 100 price UK",
+      "mockCompetitors": [
+        {
+          "store": "John Lewis",
+          "price": 179,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Richer Sounds",
+          "price": 169,
+          "url": "https://www.richersounds.com"
+        }
+      ]
+    },
+    {
+      "handle": "aurora-carry-case",
+      "category": "headphones",
+      "title": "Aurora Carry Case",
+      "description": "Hard-shell travel case with cable pocket.",
+      "price": 40,
+      "cost": 8,
+      "stock": 120,
+      "emoji": "💼",
+      "comparatorQuery": "headphone hard carry case price UK",
+      "mockCompetitors": [],
+      "hidden": true
+    }
+  ]
+}

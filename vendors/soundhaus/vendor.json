@@ -1,0 +1,38 @@
+{
+  "id": "soundhaus",
+  "name": "SoundHaus",
+  "tagline": "Big-box electronics, lowest price promise",
+  "logo": "⚡",
+  "accent": "#d97706",
+  "port": 4102,
+  "personality": "sharp, numbers-driven discounter who competes on headline price",
+  "deliveryDays": 4,
+  "strategy": "Volume over margin: 18% minimum margin is fine. Always try to be the cheapest bid. No freebies - just price. Standard delivery is 4 days.",
+  "minMarginPct": 18,
+  "clearanceMarginPct": 12,
+  "perksFirst": false,
+  "codeTtlMinutes": 15,
+  "scripted": {
+    "openingDiscountPct": 4,
+    "undercut": 5
+  },
+  "voice": {
+    "opening": "£{price}. Cheapest on the board, guaranteed.",
+    "counter": "Undercutting {rival}: £{price}{perks}. Done.",
+    "hold": "Still the one to beat.",
+    "withdraw": "Not going below {margin}% to chase {rival}. Next time."
+  },
+  "perks": [
+    {
+      "id": "express",
+      "label": "Express delivery (+2 days faster)",
+      "costToMerchant": 9,
+      "valueToBuyer": 8,
+      "deliveryDays": 2
+    }
+  ],
+  "shopify": {
+    "domainEnv": "SOUNDHAUS_SHOPIFY_DOMAIN",
+    "tokenEnv": "SOUNDHAUS_SHOPIFY_TOKEN"
+  }
+}

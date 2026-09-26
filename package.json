@@ -1,0 +1,32 @@
+{
+  "name": "haggle-vendors",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx bot/host.ts",
+    "host": "tsx --env-file-if-exists=.env bot/host.ts",
+    "swarm": "node scripts/swarm.mjs",
+    "bot": "tsx --env-file-if-exists=.env bot/server.ts",
+    "auction": "node --env-file-if-exists=.env scripts/mini-auction.mjs",
+    "seed": "node --env-file-if-exists=.env scripts/seed-shopify.mjs",
+    "admins": "node --env-file-if-exists=.env scripts/create-admins.mjs",
+    "config:reset": "node --env-file-if-exists=.env scripts/config-reset.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.1",
+    "@supabase/supabase-js": "^2.117.2",
+    "hono": "^4.13.9",
+    "openai": "^7.23.0",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

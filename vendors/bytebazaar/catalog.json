@@ -1,0 +1,124 @@
+{
+  "products": [
+    {
+      "handle": "byte-ultrabook-14",
+      "category": "laptop",
+      "title": "Ultrabook 14 (Grade A refurb)",
+      "description": "14-inch ultrabook, Grade A refurbished, 16GB RAM, 512GB SSD.",
+      "price": 849,
+      "cost": 680,
+      "stock": 30,
+      "emoji": "💻",
+      "comparatorQuery": "Dell XPS 14 price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 879,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 849,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "Box",
+          "price": 899,
+          "url": "https://www.box.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "byte-creator-16",
+      "category": "laptop",
+      "title": "Creator 16 RTX",
+      "description": "16-inch creator laptop with RTX graphics and 32GB RAM.",
+      "price": 1299,
+      "cost": 1050,
+      "stock": 10,
+      "emoji": "💻",
+      "comparatorQuery": "Asus ProArt 16 price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 1319,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 1274,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "Box",
+          "price": 1349,
+          "url": "https://www.box.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "byte-chromebook-plus",
+      "category": "laptop",
+      "title": "Chromebook Plus 14",
+      "description": "Fast Chromebook with 8GB RAM and all-day battery.",
+      "price": 399,
+      "cost": 310,
+      "stock": 70,
+      "emoji": "💻",
+      "comparatorQuery": "Chromebook Plus 14 price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 404,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 391,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "Box",
+          "price": 414,
+          "url": "https://www.box.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "byte-buds-lite",
+      "category": "earbuds",
+      "title": "ByteBuds Lite",
+      "description": "Budget ANC earbuds with 30h total battery.",
+      "price": 99,
+      "cost": 60,
+      "stock": 150,
+      "emoji": "🎵",
+      "comparatorQuery": "budget ANC earbuds price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 101,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 98,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "byte-laptop-sleeve",
+      "category": "laptop",
+      "title": "Byte Laptop Sleeve",
+      "description": "Padded neoprene sleeve, fits 13-16 inch.",
+      "price": 30,
+      "cost": 6,
+      "stock": 200,
+      "emoji": "🧳",
+      "comparatorQuery": "laptop sleeve price UK",
+      "mockCompetitors": [],
+      "hidden": true
+    }
+  ]
+}

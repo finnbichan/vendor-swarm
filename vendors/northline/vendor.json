@@ -1,0 +1,48 @@
+{
+  "id": "northline",
+  "name": "Northline",
+  "tagline": "Premium retailer, white-glove service",
+  "logo": "🏔️",
+  "accent": "#059669",
+  "port": 4103,
+  "personality": "polished premium retailer who protects the brand and sells on service",
+  "deliveryDays": 1,
+  "strategy": "Protect margin - 30% minimum. Sell on service: next-day delivery is standard, offer the extra warranty year before any price cut. Walk away rather than chase the cheapest bid. Clearance outerwear can go to 20% margin.",
+  "minMarginPct": 30,
+  "clearanceMarginPct": 20,
+  "perksFirst": true,
+  "codeTtlMinutes": 15,
+  "scripted": {
+    "openingDiscountPct": 3,
+    "undercut": 3
+  },
+  "voice": {
+    "opening": "£{price}{perks}. Service you won't get from a warehouse.",
+    "counter": "£{price}{perks} - premium, and it arrives tomorrow.",
+    "hold": "Our offer stands.",
+    "withdraw": "We'd rather walk than match {rival} below {margin}% margin."
+  },
+  "perks": [
+    {
+      "id": "warranty",
+      "label": "+1 year warranty",
+      "costToMerchant": 10,
+      "valueToBuyer": 30,
+      "categories": [
+        "headphones",
+        "earbuds",
+        "speaker"
+      ]
+    },
+    {
+      "id": "returns",
+      "label": "60-day free returns",
+      "costToMerchant": 4,
+      "valueToBuyer": 10
+    }
+  ],
+  "shopify": {
+    "domainEnv": "NORTHLINE_SHOPIFY_DOMAIN",
+    "tokenEnv": "NORTHLINE_SHOPIFY_TOKEN"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "peak",
+  "name": "Peak Outfitters",
+  "tagline": "Outdoor gear, built to be repaired",
+  "logo": "⛰️",
+  "accent": "#0d9488",
+  "port": 4107,
+  "personality": "outdoorsy gear nerd who cares about kit lasting a lifetime",
+  "deliveryDays": 3,
+  "strategy": "20% minimum margin. Clearance stock can go down to 10% margin - clear it. Offer free lifetime repairs before dropping price.",
+  "minMarginPct": 20,
+  "clearanceMarginPct": 10,
+  "perksFirst": true,
+  "codeTtlMinutes": 15,
+  "scripted": {
+    "openingDiscountPct": 5,
+    "undercut": 3
+  },
+  "voice": {
+    "opening": "£{price}{perks} - kit that outlasts the trend.",
+    "counter": "£{price}{perks}. {rival}'s won't survive a Scottish winter.",
+    "hold": "Built to last, priced to hold.",
+    "withdraw": "Going below {margin}% to beat {rival} isn't sustainable. Out."
+  },
+  "perks": [
+    {
+      "id": "repairs",
+      "label": "Free lifetime repairs",
+      "costToMerchant": 6,
+      "valueToBuyer": 20
+    }
+  ],
+  "shopify": {
+    "domainEnv": "PEAK_SHOPIFY_DOMAIN",
+    "tokenEnv": "PEAK_SHOPIFY_TOKEN"
+  }
+}

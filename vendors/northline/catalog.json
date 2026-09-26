@@ -1,0 +1,125 @@
+{
+  "products": [
+    {
+      "handle": "northline-studio-anc",
+      "category": "headphones",
+      "title": "Northline Studio ANC",
+      "description": "Premium ANC headphones with lossless wired mode and aluminium frame.",
+      "price": 259,
+      "cost": 150,
+      "stock": 12,
+      "emoji": "🎧",
+      "comparatorQuery": "Sennheiser Momentum 4 price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 239,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 229,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 249,
+          "url": "https://www.johnlewis.com"
+        }
+      ]
+    },
+    {
+      "handle": "northline-air-buds",
+      "category": "earbuds",
+      "title": "Northline Air Buds",
+      "description": "Hi-res earbuds with spatial audio and titanium drivers.",
+      "price": 139,
+      "cost": 72,
+      "stock": 20,
+      "emoji": "🎵",
+      "comparatorQuery": "Apple AirPods Pro 2 price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 119,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 115,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "northline-heritage-speaker",
+      "category": "speaker",
+      "title": "Northline Heritage Speaker",
+      "description": "Walnut-cased smart speaker with room calibration.",
+      "price": 199,
+      "cost": 110,
+      "stock": 10,
+      "emoji": "🔊",
+      "comparatorQuery": "Bang & Olufsen Beosound price UK",
+      "mockCompetitors": [
+        {
+          "store": "John Lewis",
+          "price": 179,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Richer Sounds",
+          "price": 169,
+          "url": "https://www.richersounds.com"
+        }
+      ]
+    },
+    {
+      "handle": "northline-puffer",
+      "category": "jacket",
+      "title": "Northline Recycled Puffer",
+      "description": "Recycled-down puffer, water-repellent. Last season's colourway.",
+      "price": 160,
+      "cost": 60,
+      "stock": 85,
+      "emoji": "🧥",
+      "comparatorQuery": "North Face Nuptse jacket price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 150,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 135,
+          "url": "https://www.asos.com"
+        }
+      ],
+      "clearance": true
+    },
+    {
+      "handle": "northline-alpine-down",
+      "category": "jacket",
+      "title": "Northline Alpine Down",
+      "description": "800-fill down jacket with storm hood. This season.",
+      "price": 289,
+      "cost": 150,
+      "stock": 25,
+      "emoji": "🧥",
+      "comparatorQuery": "Canada Goose down jacket price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 270,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 243,
+          "url": "https://www.asos.com"
+        }
+      ]
+    }
+  ]
+}

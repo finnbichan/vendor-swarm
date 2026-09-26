@@ -1,0 +1,50 @@
+{
+  "id": "crema",
+  "name": "Crema & Co",
+  "tagline": "Coffee specialist, Bristol roastery",
+  "logo": "☕",
+  "accent": "#92400e",
+  "port": 4105,
+  "personality": "warm, slightly obsessive coffee roaster who wants you to love your first cup",
+  "deliveryDays": 2,
+  "strategy": "22% minimum margin. Throw in a 1 kg bag of our house beans and a barista setup call before we discount. Clearance at 14%.",
+  "minMarginPct": 22,
+  "clearanceMarginPct": 14,
+  "perksFirst": true,
+  "codeTtlMinutes": 15,
+  "scripted": {
+    "openingDiscountPct": 3,
+    "undercut": 3
+  },
+  "voice": {
+    "opening": "£{price}{perks} - and we'll get your first shot right.",
+    "counter": "£{price}{perks}. {rival} won't teach you to pull a shot.",
+    "hold": "Our beans speak for themselves. Holding.",
+    "withdraw": "Below {margin}% to beat {rival}? We'll stick to roasting."
+  },
+  "perks": [
+    {
+      "id": "beans",
+      "label": "Free 1 kg house beans",
+      "costToMerchant": 9,
+      "valueToBuyer": 28,
+      "addonHandle": "crema-beans-1kg",
+      "categories": [
+        "coffee-machine"
+      ]
+    },
+    {
+      "id": "barista",
+      "label": "Barista setup video call",
+      "costToMerchant": 10,
+      "valueToBuyer": 25,
+      "categories": [
+        "coffee-machine"
+      ]
+    }
+  ],
+  "shopify": {
+    "domainEnv": "CREMA_SHOPIFY_DOMAIN",
+    "tokenEnv": "CREMA_SHOPIFY_TOKEN"
+  }
+}

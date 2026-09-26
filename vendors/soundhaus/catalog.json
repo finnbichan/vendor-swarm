@@ -1,0 +1,157 @@
+{
+  "products": [
+    {
+      "handle": "soundhaus-quietpro-headphones",
+      "category": "headphones",
+      "title": "QuietPro 700 Headphones",
+      "description": "Over-ear ANC headphones, 30-hour battery, multipoint Bluetooth.",
+      "price": 239,
+      "cost": 150,
+      "stock": 310,
+      "emoji": "🎧",
+      "comparatorQuery": "Bose QuietComfort headphones price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 239,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 229,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 249,
+          "url": "https://www.johnlewis.com"
+        }
+      ]
+    },
+    {
+      "handle": "soundhaus-buds-x",
+      "category": "earbuds",
+      "title": "Buds X ANC",
+      "description": "ANC earbuds, 8h battery, IPX5.",
+      "price": 119,
+      "cost": 78,
+      "stock": 500,
+      "emoji": "🎵",
+      "comparatorQuery": "Samsung Galaxy Buds price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 119,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 115,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "soundhaus-boom-home",
+      "category": "speaker",
+      "title": "Boom Home Speaker",
+      "description": "Smart speaker with Alexa built in.",
+      "price": 169,
+      "cost": 118,
+      "stock": 240,
+      "emoji": "🔊",
+      "comparatorQuery": "Amazon Echo Studio price UK",
+      "mockCompetitors": [
+        {
+          "store": "John Lewis",
+          "price": 179,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Richer Sounds",
+          "price": 169,
+          "url": "https://www.richersounds.com"
+        }
+      ]
+    },
+    {
+      "handle": "soundhaus-parka",
+      "category": "jacket",
+      "title": "Everyday Parka",
+      "description": "Insulated parka with fleece-lined hood.",
+      "price": 140,
+      "cost": 82,
+      "stock": 150,
+      "emoji": "🧥",
+      "comparatorQuery": "insulated parka jacket price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 150,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 135,
+          "url": "https://www.asos.com"
+        }
+      ]
+    },
+    {
+      "handle": "soundhaus-zenbook-14",
+      "category": "laptop",
+      "title": "ZenBook 14 OLED",
+      "description": "14-inch OLED ultrabook, 16GB RAM, 1TB SSD, 1.2kg.",
+      "price": 899,
+      "cost": 690,
+      "stock": 60,
+      "emoji": "💻",
+      "comparatorQuery": "Asus Zenbook 14 OLED price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 879,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 849,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "Box",
+          "price": 899,
+          "url": "https://www.box.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "soundhaus-barista-express",
+      "category": "coffee-machine",
+      "title": "Barista Express",
+      "description": "Espresso machine with built-in grinder and steam wand.",
+      "price": 499,
+      "cost": 340,
+      "stock": 45,
+      "emoji": "☕",
+      "comparatorQuery": "Sage Barista Express price UK",
+      "mockCompetitors": [
+        {
+          "store": "Argos",
+          "price": 499,
+          "url": "https://www.argos.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 529,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 479,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    }
+  ]
+}

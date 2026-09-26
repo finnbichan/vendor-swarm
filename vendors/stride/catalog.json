@@ -1,0 +1,111 @@
+{
+  "products": [
+    {
+      "handle": "stride-tempo-runner",
+      "category": "trainers",
+      "title": "Tempo Road Runner",
+      "description": "Responsive daily road shoe with a carbon-infused plate.",
+      "price": 140,
+      "cost": 70,
+      "stock": 80,
+      "emoji": "👟",
+      "comparatorQuery": "Nike Pegasus 41 price UK",
+      "mockCompetitors": [
+        {
+          "store": "Sports Direct",
+          "price": 120,
+          "url": "https://www.sportsdirect.com"
+        },
+        {
+          "store": "Runners Need",
+          "price": 135,
+          "url": "https://www.runnersneed.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 125,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "stride-trail-pro",
+      "category": "trainers",
+      "title": "Trail Pro GTX",
+      "description": "Waterproof trail shoe with aggressive lugs.",
+      "price": 165,
+      "cost": 85,
+      "stock": 40,
+      "emoji": "👟",
+      "comparatorQuery": "Salomon Speedcross GTX price UK",
+      "mockCompetitors": [
+        {
+          "store": "Sports Direct",
+          "price": 150,
+          "url": "https://www.sportsdirect.com"
+        },
+        {
+          "store": "Runners Need",
+          "price": 169,
+          "url": "https://www.runnersneed.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 156,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "stride-daily-trainer",
+      "category": "trainers",
+      "title": "Daily Trainer",
+      "description": "Cushioned everyday trainer for easy miles.",
+      "price": 95,
+      "cost": 45,
+      "stock": 120,
+      "emoji": "👟",
+      "comparatorQuery": "Asics Gel Contend price UK",
+      "mockCompetitors": [
+        {
+          "store": "Sports Direct",
+          "price": 96,
+          "url": "https://www.sportsdirect.com"
+        },
+        {
+          "store": "Runners Need",
+          "price": 108,
+          "url": "https://www.runnersneed.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 100,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "stride-rain-shell",
+      "category": "jacket",
+      "title": "Stride Rain Shell",
+      "description": "Packable waterproof running shell with reflective trim.",
+      "price": 120,
+      "cost": 55,
+      "stock": 60,
+      "emoji": "🧥",
+      "comparatorQuery": "running rain jacket price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 128,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 115,
+          "url": "https://www.asos.com"
+        }
+      ]
+    }
+  ]
+}

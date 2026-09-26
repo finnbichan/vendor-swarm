@@ -1,0 +1,162 @@
+{
+  "products": [
+    {
+      "handle": "megamart-anc-headphones",
+      "category": "headphones",
+      "title": "MegaSound ANC Headphones",
+      "description": "Over-ear ANC headphones, 35-hour battery.",
+      "price": 229,
+      "cost": 182,
+      "stock": 900,
+      "emoji": "🎧",
+      "comparatorQuery": "own-brand ANC headphones price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 239,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 229,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 249,
+          "url": "https://www.johnlewis.com"
+        }
+      ]
+    },
+    {
+      "handle": "megamart-truebuds",
+      "category": "earbuds",
+      "title": "TrueBuds ANC",
+      "description": "ANC earbuds with charging case.",
+      "price": 115,
+      "cost": 92,
+      "stock": 1500,
+      "emoji": "🎵",
+      "comparatorQuery": "budget ANC earbuds price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 119,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 115,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "megamart-winter-parka",
+      "category": "jacket",
+      "title": "Winter Parka",
+      "description": "Hooded winter parka with faux-fur trim.",
+      "price": 135,
+      "cost": 108,
+      "stock": 400,
+      "emoji": "🧥",
+      "comparatorQuery": "winter parka price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 150,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 135,
+          "url": "https://www.asos.com"
+        }
+      ]
+    },
+    {
+      "handle": "megamart-runner",
+      "category": "trainers",
+      "title": "Road Runner Trainers",
+      "description": "Lightweight running trainers.",
+      "price": 125,
+      "cost": 100,
+      "stock": 600,
+      "emoji": "👟",
+      "comparatorQuery": "running trainers price UK",
+      "mockCompetitors": [
+        {
+          "store": "Sports Direct",
+          "price": 120,
+          "url": "https://www.sportsdirect.com"
+        },
+        {
+          "store": "Runners Need",
+          "price": 135,
+          "url": "https://www.runnersneed.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 125,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "megamart-bean-to-cup",
+      "category": "coffee-machine",
+      "title": "Bean-to-Cup Coffee Machine",
+      "description": "Bean-to-cup with milk frother.",
+      "price": 479,
+      "cost": 400,
+      "stock": 80,
+      "emoji": "☕",
+      "comparatorQuery": "bean to cup coffee machine price UK",
+      "mockCompetitors": [
+        {
+          "store": "Argos",
+          "price": 499,
+          "url": "https://www.argos.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 529,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 479,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "megamart-laptop-15",
+      "category": "laptop",
+      "title": "Everyday Laptop 15",
+      "description": "15.6-inch laptop, 16GB RAM, 512GB SSD.",
+      "price": 849,
+      "cost": 740,
+      "stock": 120,
+      "emoji": "💻",
+      "comparatorQuery": "15 inch laptop price UK",
+      "mockCompetitors": [
+        {
+          "store": "Currys",
+          "price": 879,
+          "url": "https://www.currys.co.uk"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 849,
+          "url": "https://www.amazon.co.uk"
+        },
+        {
+          "store": "Box",
+          "price": 899,
+          "url": "https://www.box.co.uk"
+        }
+      ]
+    }
+  ]
+}

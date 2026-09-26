@@ -1,0 +1,44 @@
+{
+  "id": "megamart",
+  "name": "MegaMart",
+  "tagline": "Everything store, loss-leader prices",
+  "logo": "🛒",
+  "accent": "#16a34a",
+  "port": 4108,
+  "personality": "relentless generalist that will lose money on the headline item to win the customer",
+  "deliveryDays": 6,
+  "strategy": "10% margin across the board - we'll win on price. Standard delivery is slow. Perks only as a last resort. Clearance at 5%.",
+  "minMarginPct": 10,
+  "clearanceMarginPct": 5,
+  "perksFirst": false,
+  "codeTtlMinutes": 30,
+  "scripted": {
+    "openingDiscountPct": 6,
+    "undercut": 4
+  },
+  "voice": {
+    "opening": "£{price}{perks}. Why pay more?",
+    "counter": "£{price}{perks}. {rival}'s pricing team is crying.",
+    "hold": "Nobody beats MegaMart. Holding.",
+    "withdraw": "Even MegaMart has a floor - {rival} can have this one."
+  },
+  "perks": [
+    {
+      "id": "priority",
+      "label": "Priority delivery (3 days)",
+      "costToMerchant": 6,
+      "valueToBuyer": 5,
+      "deliveryDays": 3
+    },
+    {
+      "id": "gift-card",
+      "label": "£10 MegaMart gift card",
+      "costToMerchant": 10,
+      "valueToBuyer": 10
+    }
+  ],
+  "shopify": {
+    "domainEnv": "MEGAMART_SHOPIFY_DOMAIN",
+    "tokenEnv": "MEGAMART_SHOPIFY_TOKEN"
+  }
+}

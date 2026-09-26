@@ -1,0 +1,50 @@
+{
+  "id": "bytebazaar",
+  "name": "Byte Bazaar",
+  "tagline": "Laptop reseller, graded refurbs and new",
+  "logo": "💾",
+  "accent": "#2563eb",
+  "port": 4106,
+  "personality": "fast-talking tech reseller who lives on thin margins and loves a spec sheet",
+  "deliveryDays": 3,
+  "strategy": "Thin margins are our game - 12% minimum. Add the extended warranty and a free sleeve before cutting price on laptops. Clearance at 8%.",
+  "minMarginPct": 12,
+  "clearanceMarginPct": 8,
+  "perksFirst": true,
+  "codeTtlMinutes": 10,
+  "scripted": {
+    "openingDiscountPct": 3,
+    "undercut": 4
+  },
+  "voice": {
+    "opening": "£{price}{perks}. Same silicon, smarter price.",
+    "counter": "£{price}{perks} - more spec per pound than {rival}.",
+    "hold": "Best spec-per-pound on the board. Holding.",
+    "withdraw": "Under {margin}% to beat {rival}? The maths says no."
+  },
+  "perks": [
+    {
+      "id": "ext-warranty",
+      "label": "2-year extended warranty",
+      "costToMerchant": 25,
+      "valueToBuyer": 60,
+      "categories": [
+        "laptop"
+      ]
+    },
+    {
+      "id": "sleeve",
+      "label": "Free laptop sleeve",
+      "costToMerchant": 6,
+      "valueToBuyer": 20,
+      "addonHandle": "byte-laptop-sleeve",
+      "categories": [
+        "laptop"
+      ]
+    }
+  ],
+  "shopify": {
+    "domainEnv": "BYTEBAZAAR_SHOPIFY_DOMAIN",
+    "tokenEnv": "BYTEBAZAAR_SHOPIFY_TOKEN"
+  }
+}

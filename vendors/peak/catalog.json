@@ -1,0 +1,107 @@
+{
+  "products": [
+    {
+      "handle": "peak-summit-shell",
+      "category": "jacket",
+      "title": "Summit 3L Shell",
+      "description": "Three-layer waterproof shell with helmet-compatible hood.",
+      "price": 220,
+      "cost": 120,
+      "stock": 30,
+      "emoji": "🧥",
+      "comparatorQuery": "Arc'teryx Beta jacket price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 225,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 203,
+          "url": "https://www.asos.com"
+        }
+      ]
+    },
+    {
+      "handle": "peak-insulated-parka",
+      "category": "jacket",
+      "title": "Glen Insulated Parka (clearance)",
+      "description": "Synthetic-insulated parka, last season's colours.",
+      "price": 180,
+      "cost": 95,
+      "stock": 60,
+      "emoji": "🧥",
+      "comparatorQuery": "insulated parka jacket price UK",
+      "mockCompetitors": [
+        {
+          "store": "JD Sports",
+          "price": 150,
+          "url": "https://www.jdsports.co.uk"
+        },
+        {
+          "store": "ASOS",
+          "price": 135,
+          "url": "https://www.asos.com"
+        }
+      ],
+      "clearance": true
+    },
+    {
+      "handle": "peak-trail-runner",
+      "category": "trainers",
+      "title": "Ridge Trail Runner",
+      "description": "Cushioned trail runner with Vibram outsole.",
+      "price": 130,
+      "cost": 72,
+      "stock": 45,
+      "emoji": "👟",
+      "comparatorQuery": "Hoka Speedgoat price UK",
+      "mockCompetitors": [
+        {
+          "store": "Sports Direct",
+          "price": 120,
+          "url": "https://www.sportsdirect.com"
+        },
+        {
+          "store": "Runners Need",
+          "price": 135,
+          "url": "https://www.runnersneed.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 125,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "peak-approach-shoe",
+      "category": "trainers",
+      "title": "Scramble Approach Shoe",
+      "description": "Sticky-rubber approach shoe for scrambles and hikes.",
+      "price": 115,
+      "cost": 60,
+      "stock": 35,
+      "emoji": "👟",
+      "comparatorQuery": "approach shoe price UK",
+      "mockCompetitors": [
+        {
+          "store": "Sports Direct",
+          "price": 108,
+          "url": "https://www.sportsdirect.com"
+        },
+        {
+          "store": "Runners Need",
+          "price": 122,
+          "url": "https://www.runnersneed.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 113,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    }
+  ]
+}

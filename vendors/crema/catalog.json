@@ -1,0 +1,101 @@
+{
+  "products": [
+    {
+      "handle": "crema-bean-to-cup",
+      "category": "coffee-machine",
+      "title": "Crema Bean-to-Cup One",
+      "description": "Bean-to-cup machine with milk system and 13 grind settings.",
+      "price": 549,
+      "cost": 370,
+      "stock": 15,
+      "emoji": "☕",
+      "comparatorQuery": "De'Longhi Magnifica bean to cup price UK",
+      "mockCompetitors": [
+        {
+          "store": "Argos",
+          "price": 499,
+          "url": "https://www.argos.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 529,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 479,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "crema-espresso-pro",
+      "category": "coffee-machine",
+      "title": "Espresso Pro Dual Boiler",
+      "description": "Dual-boiler espresso machine with PID control.",
+      "price": 699,
+      "cost": 480,
+      "stock": 8,
+      "emoji": "☕",
+      "comparatorQuery": "Sage Dual Boiler price UK",
+      "mockCompetitors": [
+        {
+          "store": "Argos",
+          "price": 699,
+          "url": "https://www.argos.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 741,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 671,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "crema-pod-mini",
+      "category": "coffee-machine",
+      "title": "Pod Mini",
+      "description": "Compact pod machine, compostable pods.",
+      "price": 129,
+      "cost": 75,
+      "stock": 50,
+      "emoji": "☕",
+      "comparatorQuery": "Nespresso Vertuo price UK",
+      "mockCompetitors": [
+        {
+          "store": "Argos",
+          "price": 130,
+          "url": "https://www.argos.co.uk"
+        },
+        {
+          "store": "John Lewis",
+          "price": 138,
+          "url": "https://www.johnlewis.com"
+        },
+        {
+          "store": "Amazon UK",
+          "price": 125,
+          "url": "https://www.amazon.co.uk"
+        }
+      ]
+    },
+    {
+      "handle": "crema-beans-1kg",
+      "category": "coffee-machine",
+      "title": "1 kg House Espresso Beans",
+      "description": "Chocolatey house espresso roast.",
+      "price": 28,
+      "cost": 9,
+      "stock": 200,
+      "emoji": "🫘",
+      "comparatorQuery": "specialty espresso beans 1kg price UK",
+      "mockCompetitors": [],
+      "hidden": true
+    }
+  ]
+}

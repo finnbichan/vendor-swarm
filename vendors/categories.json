@@ -1,0 +1,92 @@
+[
+  {
+    "id": "headphones",
+    "label": "Noise-cancelling headphones",
+    "emoji": "🎧",
+    "keywords": [
+      "headphone",
+      "headphones",
+      "over-ear",
+      "anc",
+      "noise cancelling",
+      "noise-cancelling",
+      "cans"
+    ]
+  },
+  {
+    "id": "earbuds",
+    "label": "Wireless earbuds",
+    "emoji": "🎵",
+    "keywords": [
+      "earbud",
+      "earbuds",
+      "buds",
+      "in-ear",
+      "airpods"
+    ]
+  },
+  {
+    "id": "speaker",
+    "label": "Smart speaker",
+    "emoji": "🔊",
+    "keywords": [
+      "speaker",
+      "alexa",
+      "sonos",
+      "smart speaker",
+      "echo"
+    ]
+  },
+  {
+    "id": "jacket",
+    "label": "Winter jacket",
+    "emoji": "🧥",
+    "keywords": [
+      "jacket",
+      "coat",
+      "puffer",
+      "parka",
+      "shell",
+      "raincoat"
+    ]
+  },
+  {
+    "id": "trainers",
+    "label": "Running trainers",
+    "emoji": "👟",
+    "keywords": [
+      "trainer",
+      "trainers",
+      "sneaker",
+      "sneakers",
+      "running shoe",
+      "running shoes",
+      "runners"
+    ]
+  },
+  {
+    "id": "coffee-machine",
+    "label": "Coffee machine",
+    "emoji": "☕",
+    "keywords": [
+      "coffee",
+      "espresso",
+      "bean-to-cup",
+      "barista",
+      "coffee machine",
+      "cappuccino"
+    ]
+  },
+  {
+    "id": "laptop",
+    "label": "Laptop",
+    "emoji": "💻",
+    "keywords": [
+      "laptop",
+      "notebook",
+      "macbook",
+      "chromebook",
+      "ultrabook"
+    ]
+  }
+]
