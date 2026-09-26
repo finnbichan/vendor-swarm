@@ -3,7 +3,8 @@
 // Usage: tsx bot/host.ts   (VENDORS=aurora,crema to host a subset)
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { config, live } from "../lib/config";
+import { config, live, llmTarget } from "../lib/config";
+import { understandRequest } from "../lib/intent";
 import { PROTOCOL_VERSION } from "../protocol";
 import { MatchRequestSchema } from "../protocol";
 import { corsMw, createVendorApp, engineOf, rateLimit, requireSwarmKey } from "./app";
@@ -46,13 +47,18 @@ host.get("/vendors", (c) =>
 host.post("/match", async (c) => {
   const parsed = MatchRequestSchema.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: "Invalid match request", issues: parsed.error.issues }, 400);
+  // Understand the request once (server default model, or rules) so every vendor judges the same intent.
+  const { intent, parser } = parsed.data.intent
+    ? { intent: parsed.data.intent, parser: "given" }
+    : await understandRequest(parsed.data.request!, stores[0].current().categories, llmTarget(), "host");
   const results = stores.map((s) => ({
-    ...matchIntent(s.current(), parsed.data.intent),
+    ...matchIntent(s.current(), intent),
     name: s.current().vendor.name,
     logo: s.current().vendor.logo,
     cardUrl: `${vendorUrl(s.id)}/card`,
   }));
-  return c.json({ protocolVersion: PROTOCOL_VERSION, included: results.filter((r) => r.include).map((r) => r.merchantId), results });
+  console.log(`[host] match "${parsed.data.request ?? intent.summary}" -> ${intent.category} (${parser}): ${results.filter((r) => r.include).map((r) => r.merchantId).join(", ") || "nobody"}`);
+  return c.json({ protocolVersion: PROTOCOL_VERSION, intent, parser, included: results.filter((r) => r.include).map((r) => r.merchantId), results });
 });
 
 host.get("/health", (c) =>

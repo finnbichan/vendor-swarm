@@ -4,7 +4,8 @@
 import { z } from "zod";
 
 // 1.1: `engine` is "scripted" or "<provider>:<model>"; /quote and /award may require a swarm key.
-// 1.2: POST /match - a bot says whether it would take part in an auction for an intent.
+// 1.2: POST /match - a bot says whether it would take part, given the shopper's own words
+//      (`request`) or a structured intent; the reply includes the intent it understood.
 export const PROTOCOL_VERSION = "1.2";
 export const ROUNDS = 3;
 export const LATE_PENALTY = 25; // how much the buyer dislikes missing the deadline, in £
@@ -69,16 +70,22 @@ export type Card = z.infer<typeof CardSchema>;
 /* ------------------------------------------------------------------ */
 /* POST /match  (would this bot take part? call before round 1)         */
 /* ------------------------------------------------------------------ */
-export const MatchRequestSchema = z.object({
-  protocolVersion: z.string().optional(),
-  auctionId: z.string().optional(),
-  intent: IntentSchema,
-});
+export const MatchRequestSchema = z
+  .object({
+    protocolVersion: z.string().optional(),
+    auctionId: z.string().optional(),
+    // The shopper's conversational request, e.g. "im looking for a coffee machine for under £500"...
+    request: z.string().trim().min(2).max(500).optional(),
+    // ...or an intent the auctioneer has already worked out (wins if both are sent).
+    intent: IntentSchema.optional(),
+  })
+  .refine((m) => m.request || m.intent, { message: "Send `request` (the shopper's words) or `intent`." });
 export type MatchRequest = z.infer<typeof MatchRequestSchema>;
 
 export const MatchResponseSchema = z.object({
   merchantId: z.string(),
   include: z.boolean(),
+  intent: IntentSchema, // what the bot understood; reuse it for /quote
   // Categories only - a bot never says by how much it misses a budget.
   reason: z.enum(["ok", "not_stocked", "out_of_stock", "over_budget"]),
   message: z.string(),

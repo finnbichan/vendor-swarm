@@ -67,12 +67,15 @@ render.yaml              Render Blueprint; .github/workflows/keep-warm.yml pings
 ## Protocol (v1.2), see `protocol.ts`
 
 What's new in 1.2:
-- **`POST /match`** `{intent}` returns `{merchantId, include, reason, message, product, deliveryDays, meetsDeadline}`. It's the catalogue check: before round 1, the auctioneer asks each bot whether it would take part.
+- **`POST /match`** `{request}` or `{intent}` returns `{merchantId, include, reason, message, intent, product, deliveryDays, meetsDeadline, parser}`. It's the catalogue check: before round 1, the auctioneer asks each bot whether it would take part.
+  - `request` is the shopper's own words, e.g. `"im looking for a coffee machine for under £500"`. The bot works out the category, budget and deadline with its model, or with keywords from `categories.json` if it has no key. It returns that `intent` so the auctioneer can reuse it for `/quote`.
+  - A structured `intent` can be sent instead, and wins if both are sent.
+  - A request that matches nothing sold becomes category `unknown`, and every bot declines with `not_stocked`.
   - `reason` is one of `ok`, `not_stocked`, `out_of_stock` or `over_budget`. It's never a number, so a bot doesn't reveal how far over budget it is.
   - It's instant and uses no model. It picks a product the same way as `/quote`, so `include: true` means the bot will bid.
   - A late bot still says yes, with `meetsDeadline: false`, because late bids count with the buyer's late penalty.
   - It needs the swarm key and is rate-limited. Unlimited budget probes could otherwise narrow down a floor.
-  - On the host, **`POST /match`** asks all vendors in one call and returns `{included: [ids], results: [...]}`.
+  - On the host, **`POST /match`** understands the request **once** (with the server's default model, or rules) and asks all vendors about that same intent. It returns `{intent, parser, included: [ids], results: [...]}`, which is the call the auctioneer should make.
 
 What's new in 1.1:
 - `engine` is `"scripted"` or `"<provider>:<model>"`.

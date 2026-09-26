@@ -6,6 +6,7 @@ import type { Emit } from "../lib/events";
 import { config, llmTarget, type LlmTarget } from "../lib/config";
 import { runAgent, type ToolDef } from "../lib/llm";
 import { floorPrice, perkValue, psychological } from "../lib/pricing";
+import { UNKNOWN } from "../lib/intent";
 import { competitorPrices } from "../lib/tools/tavily";
 import type { Snapshot } from "./config-store";
 import { policyOf, type Perk, type Policy, type Product, type Vendor } from "./schema";
@@ -448,6 +449,7 @@ export function matchIntent(snap: Snapshot, intent: Intent): MatchResponse {
   const no = (reason: MatchResponse["reason"], message: string): MatchResponse => ({
     merchantId: v.id,
     include: false,
+    intent,
     reason,
     message,
     product: null,
@@ -455,7 +457,7 @@ export function matchIntent(snap: Snapshot, intent: Intent): MatchResponse {
     meetsDeadline: null,
   });
   const stocked = snap.catalog.products.filter((p) => p.category === intent.category && !p.hidden);
-  const label = intent.categoryLabel.toLowerCase();
+  const label = intent.category === UNKNOWN ? "that" : intent.categoryLabel.toLowerCase();
   if (!stocked.length) return no("not_stocked", `${v.name} doesn't sell ${label}.`);
   if (!stocked.some((p) => p.stock > 0)) return no("out_of_stock", `${v.name} is sold out of ${label}.`);
   const product = pickProduct(snap, intent, policy);
@@ -466,6 +468,7 @@ export function matchIntent(snap: Snapshot, intent: Intent): MatchResponse {
   return {
     merchantId: v.id,
     include: true,
+    intent,
     reason: "ok",
     message: `${v.name} will bid with the ${product.title}${meetsDeadline ? "" : " (can't make the deadline)"}.`,
     product: publicProduct(product),

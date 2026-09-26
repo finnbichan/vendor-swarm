@@ -100,10 +100,9 @@ const score = (b, intent) =>
   b.price - b.perkValue + (intent.deadlineDays && b.deliveryDays > intent.deadlineDays ? LATE_PENALTY : 0) + (intent.budget && b.price > intent.budget ? 1000 : 0);
 
 /* ---------------- 3. run it ---------------- */
-const intent = intentFor(request);
 const auctionId = randomUUID();
 console.log(c.bold(`\n🔨 Haggle mini-auction ${c.dim(auctionId.slice(0, 8))}`));
-console.log(`   "${request}"\n   → ${c.cyan(intent.summary)} ${c.dim(`[${intent.category}]`)}\n`);
+console.log(`   "${request}"`);
 
 const urls = await cardUrls();
 const cards = (await Promise.all(urls.map(getCard))).filter(Boolean);
@@ -111,22 +110,48 @@ if (!cards.length) {
   console.error(c.red(`No bots answered (${urls.length} tried). ${base ? "Is the host up?" : "Start them with: npm run swarm"}`));
   process.exit(1);
 }
-// Catalogue check: every bot says yes or no (with a reason) before round 1.
-async function match(card) {
-  if (!card.endpoints.match) return { include: card.categories.includes(intent.category), reason: "ok", message: "(no /match - pre-1.2 bot)" };
+
+// Catalogue check: the bots get the shopper's own words, say yes or no (with a reason),
+// and hand back the intent they understood, which the /quote rounds then use.
+const post = async (url, body) => {
   try {
-    const r = await fetch(card.endpoints.match, {
+    const r = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", ...auth },
-      body: JSON.stringify({ auctionId, intent }),
-      signal: AbortSignal.timeout(15_000),
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30_000),
     });
     return r.ok ? await r.json() : { include: false, reason: `HTTP ${r.status}`, message: (await r.text()).slice(0, 120) };
   } catch (e) {
     return { include: false, reason: "unreachable", message: e.message };
   }
+};
+let intent = null;
+let parser = "local rules";
+let answers;
+if (base) {
+  // Deployed host: one call, the request is understood once and every vendor judged on it.
+  const r = await post(`${base}/match`, { auctionId, request });
+  if (!r.results) {
+    console.error(c.red(`Catalogue check failed: ${r.reason ?? ""} ${r.message ?? ""}`));
+    process.exit(1);
+  }
+  ({ intent, parser } = r);
+  answers = cards.map((card) => ({ card, m: r.results.find((x) => x.merchantId === card.id) ?? { include: false, reason: "missing", message: "" } }));
+} else {
+  answers = await Promise.all(
+    cards.map(async (card) =>
+      card.endpoints.match
+        ? { card, m: await post(card.endpoints.match, { auctionId, request }) }
+        : { card, m: null }, // pre-1.2 bot: decide from its card below
+    ),
+  );
+  const first = answers.find((a) => a.m?.intent);
+  if (first) ({ intent, parser } = first.m);
 }
-const answers = await Promise.all(cards.map(async (card) => ({ card, m: await match(card) })));
+intent ??= intentFor(request);
+for (const a of answers) a.m ??= { include: a.card.categories.includes(intent.category), reason: "ok", message: "(no /match - pre-1.2 bot)" };
+console.log(`   → ${c.cyan(intent.summary)} ${c.dim(`[${intent.category}${intent.budget ? `, £${intent.budget}` : ""}${intent.deadlineDays !== null ? `, ${intent.deadlineDays}d` : ""} · understood by ${parser}]`)}\n`);
 const lots = answers.filter((a) => a.m.include).map(({ card, m }) => ({ card, match: m, status: "bidding", bid: null, lastMessage: "" }));
 console.log(`   ${cards.length}/${urls.length} bots online · catalogue check: ${lots.length} in, ${answers.length - lots.length} out`);
 for (const { card, m } of answers)

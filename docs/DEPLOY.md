@@ -83,7 +83,7 @@ npm run auction -- "noise cancelling headphones under £260 by Friday" --base ht
 ## 5. Point ~/haggle at it (later step)
 
 In the Vercel project:
-- `HAGGLE_VENDOR_BASE=https://<service>.onrender.com`. The auctioneer calls `POST /match` with the shopper's intent to learn which vendors will take part, then runs `/quote` rounds against those bots.
+- `HAGGLE_VENDOR_BASE=https://<service>.onrender.com`. The auctioneer sends the shopper's words to `POST /match` (`{"request": "im looking for a coffee machine for under £500"}`). The reply says which vendors will take part and gives the understood `intent`. The auctioneer then runs `/quote` rounds against those bots with that intent.
 - `SWARM_API_KEY=<same value>`, sent as `Authorization: Bearer …` on `/quote` and `/award`.
 
 ## Checklist

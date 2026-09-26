@@ -6,6 +6,7 @@ import { cors } from "hono/cors";
 import { AwardRequestSchema, MatchRequestSchema, PROTOCOL_VERSION, QuoteRequestSchema, type Card } from "../protocol";
 import { config, llmTarget } from "../lib/config";
 import { ndjsonStream } from "../lib/events";
+import { understandRequest } from "../lib/intent";
 import { parseStrategy } from "../lib/policy";
 import { adminPage, adminRoutes } from "./admin-routes";
 import { isOwner, requireOwner, type Owner } from "./auth";
@@ -92,9 +93,14 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
   app.post("/match", async (c) => {
     const parsed = MatchRequestSchema.safeParse(await c.req.json().catch(() => null));
     if (!parsed.success) return c.json({ error: "Invalid match request", issues: parsed.error.issues }, 400);
-    const r = matchIntent(store.current(), parsed.data.intent);
-    log(`match ${parsed.data.intent.category}${parsed.data.intent.budget ? ` £${parsed.data.intent.budget}` : ""}: ${r.include ? "yes" : `no (${r.reason})`}`);
-    return c.json(r);
+    const snap = store.current();
+    // Structured intent if the auctioneer sent one, else this bot reads the shopper's words itself.
+    const { intent, parser } = parsed.data.intent
+      ? { intent: parsed.data.intent, parser: "given" }
+      : await understandRequest(parsed.data.request!, snap.categories, llmTarget(snap.vendor.llm), vendorId);
+    const r = matchIntent(snap, intent);
+    log(`match "${intent.summary}" [${intent.category}, ${parser}]: ${r.include ? "yes" : `no (${r.reason})`}`);
+    return c.json({ ...r, parser });
   });
 
   app.post("/quote", async (c) => {
