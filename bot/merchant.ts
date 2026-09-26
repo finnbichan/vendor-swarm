@@ -9,6 +9,7 @@ import { floorPrice, perkValue, psychological } from "../lib/pricing";
 import { UNKNOWN } from "../lib/intent";
 import { competitorPrices } from "../lib/tools/tavily";
 import type { Snapshot } from "./config-store";
+import { imageUrl } from "./product-image";
 import { policyOf, type Perk, type Policy, type Product, type Vendor } from "./schema";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -27,6 +28,7 @@ type Ctx = {
   decision: Decision | null;
   target: LlmTarget | null;
   signal?: AbortSignal;
+  publicUrl: string;
 };
 
 /* ------------------------------------------------------------------ */
@@ -43,14 +45,14 @@ export function perkSubsets(perks: Perk[]): Perk[][] {
   return out;
 }
 
-export const publicProduct = (p: Product): PublicProduct => ({
+export const publicProduct = (p: Product, publicUrl: string): PublicProduct => ({
   handle: p.handle,
   category: p.category,
   title: p.title,
   description: p.description,
   price: p.price,
   emoji: p.emoji,
-  image: p.image,
+  image: imageUrl(p, publicUrl),
   inStock: p.stock > 0,
 });
 
@@ -146,6 +148,7 @@ function placeBid(ctx: Ctx, rawPrice: number, perkIds: string[], message: string
     action: "bid",
     handle: ctx.product.handle,
     title: ctx.product.title,
+    image: imageUrl(ctx.product, ctx.publicUrl),
     price,
     perkIds: perks.map((p) => p.id),
     perks: perks.map((p) => p.label),
@@ -387,7 +390,7 @@ async function scriptedTurn(ctx: Ctx, opts: { skipLookups?: boolean } = {}) {
 /* ------------------------------------------------------------------ */
 /* Entry point for POST /quote                                          */
 /* ------------------------------------------------------------------ */
-export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit) {
+export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit, publicUrl: string) {
   const v = snap.vendor;
   const emit = redactingEmit(rawEmit);
   const target = llmTarget(v.llm);
@@ -399,7 +402,7 @@ export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit) {
   const product = pickProduct(snap, req.intent, policy, req.myBid);
   if (!product) return decide({ action: "withdraw", message: `${v.name} doesn't stock ${req.intent.categoryLabel.toLowerCase()} right now.` });
   if (product.stock <= 0) return decide({ action: "withdraw", message: `Sold out of the ${product.title}.` });
-  emit({ t: "lot", merchantId: v.id, product: publicProduct(product), deliveryDays: v.deliveryDays });
+  emit({ t: "lot", merchantId: v.id, product: publicProduct(product, publicUrl), deliveryDays: v.deliveryDays });
 
   const perks = perksFor(snap, req.intent.category);
   const my = req.myBid;
@@ -415,6 +418,7 @@ export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit) {
     bid: my ? { price: my.price, perks: myPerks, deliveryDays: deliveryFor(v, myPerks) } : null,
     decision: null,
     target,
+    publicUrl,
   };
 
   emit({ t: "thinking", agent: v.id });
@@ -443,7 +447,7 @@ export async function quote(snap: Snapshot, req: QuoteRequest, rawEmit: Emit) {
 /* ------------------------------------------------------------------ */
 // Instant and model-free, using the same product choice as /quote, so a "yes" means we'll bid.
 // Reasons are categories, never numbers: "over_budget" says no, not by how much.
-export function matchIntent(snap: Snapshot, intent: Intent): MatchResponse {
+export function matchIntent(snap: Snapshot, intent: Intent, publicUrl: string): MatchResponse {
   const v = snap.vendor;
   const policy = policyOf(v);
   const no = (reason: MatchResponse["reason"], message: string): MatchResponse => ({
@@ -471,7 +475,7 @@ export function matchIntent(snap: Snapshot, intent: Intent): MatchResponse {
     intent,
     reason: "ok",
     message: `${v.name} will bid with the ${product.title}${meetsDeadline ? "" : " (can't make the deadline)"}.`,
-    product: publicProduct(product),
+    product: publicProduct(product, publicUrl),
     deliveryDays,
     meetsDeadline,
   };

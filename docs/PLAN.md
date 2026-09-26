@@ -64,7 +64,13 @@ render.yaml              Render Blueprint; .github/workflows/keep-warm.yml pings
 
 \* SoundHaus keeps its original Everyday Parka from `~/haggle`, because the brief said to keep existing products and handles. MegaMart can't cover all 7 categories within the 3-6 product limit, so it skips speaker, which already has 3 vendors. Every category has at least 3 vendors.
 
-## Protocol (v1.2), see `protocol.ts`
+## Protocol (v1.3), see `protocol.ts`
+
+What's new in 1.3: images. The new fields are additive and optional, so older callers still work.
+- Every public product (on `/card`, in `lot` events and in `/match` results) has an absolute `image` URL.
+- A bid decision carries `image`.
+- An award carries `image` (the main product) and `items: [{handle, title, image}]`, the product plus any add-ons from perks.
+- **Where the image comes from:** by default, each bot draws its own SVG card, served at `GET /images/<handle>.svg` (public, cached 1 hour), in the vendor's colour with the product emoji and title. An `image` URL set on the admin page's Catalogue → More replaces it. On a vendor with a live Shopify store, the award uses Shopify's product photo if there is one.
 
 What's new in 1.2:
 - **`POST /match`** `{request}` or `{intent}` returns `{merchantId, include, reason, message, intent, product, deliveryDays, meetsDeadline, parser}`. It's the catalogue check: before round 1, the auctioneer asks each bot whether it would take part.

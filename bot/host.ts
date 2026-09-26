@@ -52,7 +52,7 @@ host.post("/match", async (c) => {
     ? { intent: parsed.data.intent, parser: "given" }
     : await understandRequest(parsed.data.request!, stores[0].current().categories, llmTarget(), "host");
   const results = stores.map((s) => ({
-    ...matchIntent(s.current(), intent),
+    ...matchIntent(s.current(), intent, vendorUrl(s.id)),
     name: s.current().vendor.name,
     logo: s.current().vendor.logo,
     cardUrl: `${vendorUrl(s.id)}/card`,

@@ -4,6 +4,7 @@ import type { AwardRequest, AwardResponse } from "../protocol";
 import { floorPrice, marginPct } from "../lib/pricing";
 import { cartPermalink, createDiscountCode, fetchShopifyProducts, makeCode, type ShopifyProduct, type ShopifyStore } from "../lib/tools/shopify";
 import type { Snapshot } from "./config-store";
+import { imageUrl } from "./product-image";
 import { perksFor } from "./merchant";
 import { policyOf, type Product, type Vendor } from "./schema";
 
@@ -51,11 +52,16 @@ export async function award(snap: Snapshot, req: AwardRequest, publicUrl: string
   const expiresAt = Date.now() + policy.codeTtlMinutes * 60_000;
 
   let checkoutUrl: string | null = null;
+  // Our own card unless the owner set an image; a live Shopify product photo wins below.
+  const images = items.map((p) => imageUrl(p, publicUrl));
   const store = storeFor(v);
   if (store) {
     try {
       const byHandle = await shopifyProducts(store);
       const found = items.map((p) => byHandle.get(p.handle));
+      found.forEach((f, i) => {
+        if (f?.image && !items[i].image) images[i] = f.image;
+      });
       if (found.every(Boolean)) {
         // The cart is priced by Shopify, so the discount is computed from Shopify's list prices.
         listTotal = found.reduce((s, p) => s + p!.price, 0);
@@ -89,5 +95,7 @@ export async function award(snap: Snapshot, req: AwardRequest, publicUrl: string
     perks: perks.map((k) => k.label),
     expiresAt,
     liveShopify,
+    image: images[0],
+    items: items.map((p, i) => ({ handle: p.handle, title: p.title, image: images[i] })),
   };
 }

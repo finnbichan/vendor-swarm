@@ -6,7 +6,9 @@ import { z } from "zod";
 // 1.1: `engine` is "scripted" or "<provider>:<model>"; /quote and /award may require a swarm key.
 // 1.2: POST /match - a bot says whether it would take part, given the shopper's own words
 //      (`request`) or a structured intent; the reply includes the intent it understood.
-export const PROTOCOL_VERSION = "1.2";
+// 1.3: images - every public product has an absolute `image` URL (a generated card unless the
+//      owner set one), bid decisions carry `image`, awards carry `image` and `items`.
+export const PROTOCOL_VERSION = "1.3";
 export const ROUNDS = 3;
 export const LATE_PENALTY = 25; // how much the buyer dislikes missing the deadline, in £
 
@@ -136,6 +138,7 @@ export const DecisionSchema = z.discriminatedUnion("action", [
     action: z.literal("bid"),
     handle: z.string(),
     title: z.string(),
+    image: z.string().optional(), // absolute URL of the product image
     price: z.number(),
     perkIds: z.array(z.string()),
     perks: z.array(z.string()),
@@ -182,6 +185,8 @@ export const AwardResponseSchema = z.object({
   perks: z.array(z.string()),
   expiresAt: z.number(),
   liveShopify: z.boolean(),
+  image: z.string().optional(), // main product's image (absolute URL)
+  items: z.array(z.object({ handle: z.string(), title: z.string(), image: z.string() })).optional(), // product + add-ons
 });
 export type AwardResponse = z.infer<typeof AwardResponseSchema>;
 

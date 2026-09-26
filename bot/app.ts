@@ -12,6 +12,7 @@ import { adminPage, adminRoutes } from "./admin-routes";
 import { isOwner, requireOwner, type Owner } from "./auth";
 import { award, AwardError, storeFor } from "./award";
 import { mockCheckoutPage } from "./checkout-page";
+import { productCardSvg } from "./product-image";
 import { ConfigError, ConflictError, type VendorStore } from "./config-store";
 import { matchIntent, publicProduct, quote } from "./merchant";
 import { policyOf } from "./schema";
@@ -82,7 +83,7 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
       categories: [...new Set(products.map((p) => p.category))],
       deliveryDays: v.deliveryDays,
       perks: v.perks.map(({ id, label, valueToBuyer, deliveryDays, categories }) => ({ id, label, valueToBuyer, deliveryDays, categories })),
-      products: products.map(publicProduct),
+      products: products.map((p) => publicProduct(p, publicUrl)),
       engine: engineOf(store),
       store: storeFor(v) ? "shopify" : "mock",
       endpoints: { match: `${publicUrl}/match`, quote: `${publicUrl}/quote`, award: `${publicUrl}/award`, policy: `${publicUrl}/policy`, admin: `${publicUrl}/admin/` },
@@ -98,7 +99,7 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
     const { intent, parser } = parsed.data.intent
       ? { intent: parsed.data.intent, parser: "given" }
       : await understandRequest(parsed.data.request!, snap.categories, llmTarget(snap.vendor.llm), vendorId);
-    const r = matchIntent(snap, intent);
+    const r = matchIntent(snap, intent, publicUrl);
     log(`match "${intent.summary}" [${intent.category}, ${parser}]: ${r.include ? "yes" : `no (${r.reason})`}`);
     return c.json({ ...r, parser });
   });
@@ -114,7 +115,7 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
         if (e.t === "guardrail") log(`guardrail blocked £${e.attempted}`);
         if (e.t === "decision") log(`r${req.round} ${e.decision.action}${e.decision.action === "bid" ? ` £${e.decision.price}` : ""}`);
         emit(e);
-      }),
+      }, publicUrl),
     );
   });
 
@@ -150,6 +151,15 @@ export function createVendorApp(store: VendorStore, opts: { publicUrl: string; l
       if (e instanceof ConfigError) return c.json({ error: e.message, problems: e.problems }, 422);
       throw e;
     }
+  });
+
+  // Generated product cards (public; add-ons included so award `items` all have pictures).
+  app.get("/images/:file", (c) => {
+    const file = c.req.param("file");
+    const { vendor, catalog } = store.current();
+    const p = file.endsWith(".svg") ? catalog.products.find((x) => x.handle === file.slice(0, -4)) : undefined;
+    if (!p) return c.json({ error: "No such product image" }, 404);
+    return c.body(productCardSvg(p, vendor), 200, { "Content-Type": "image/svg+xml; charset=utf-8", "Cache-Control": "public, max-age=3600" });
   });
 
   app.get("/checkout/mock", (c) => c.html(mockCheckoutPage(store.current().vendor, new URL(c.req.url).searchParams)));

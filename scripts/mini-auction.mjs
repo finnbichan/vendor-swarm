@@ -248,4 +248,5 @@ if (!res.ok) {
 }
 console.log(`\n🎟  ${c.bold(deal.code)}  ${deal.title}  £${deal.listTotal} → ${c.green(`£${deal.finalPrice}`)} ${deal.liveShopify ? c.green("[Shopify]") : c.dim("[mock]")}`);
 console.log(`   ${deal.checkoutUrl}`);
+if (deal.image) console.log(`   🖼  ${deal.image}${deal.items?.length > 1 ? c.dim(` (+${deal.items.length - 1} add-on image${deal.items.length > 2 ? "s" : ""})`) : ""}`);
 console.log(c.dim(`   expires ${new Date(deal.expiresAt).toLocaleTimeString("en-GB")}\n`));
